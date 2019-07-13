@@ -61,6 +61,7 @@ function getRewards (stakers, callback) {
     }
     var average = totalStake / stakers.length
     rewards["info"] = {
+        "stakers" : stakers.length,
         "total_stake" : totalStake.toFixed(8),
         "reward_pool" : config.reward_pool.toFixed(8),
         "average_reward" : average.toFixed(8)
@@ -68,10 +69,86 @@ function getRewards (stakers, callback) {
     callback (rewards)
 }
 
-getAllStakers(function(stakers) {
-    if (stakers.length > 0) {
-        getRewards(stakers, function(rewards) {
-            console.log(rewards)
+function initTimer () {
+    console.log("---------------------------------------------------".yellow)
+    var TimeTimer = (function() {    
+        return setInterval(function() {
+            currentTime = new Date().toLocaleString(undefined, {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            })
+            process.stdout.write("\rCURRENT LOCAL TIME : ".yellow + currentTime.green)
+            var currentHour = new Date().getHours()
+            if (currentHour == config.distribution_hour) {
+                clearInterval(TimeTimer)
+                console.log("\n")
+                InitiateDistribution()
+            }
+        }, 1000);
+    })()
+}
+
+function sendRewards(stakers, callback) {
+    callback(true)
+}
+
+function InitiateDistribution () {
+    setTimeout(function () {    
+        console.log("DISTRIBUTION WAS CALLED, CURRENT TIME = ".yellow, new Date().toLocaleString(undefined, {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        }).green)
+        console.log("NOW GETTING ALL STAKERS".yellow)
+        console.log("")
+        getAllStakers(function(stakers) {
+            if (stakers.length > 0) {
+                getRewards(stakers, function(rewards) {
+                    console.log("---------------------------------------------------".yellow)
+                    console.log("TOTAL STAKERS  : ".yellow, colors.green(rewards.info.stakers))
+                    console.log("REWARD POOL    : ".yellow, colors.green(rewards.info.reward_pool))
+                    console.log("TOTAL STAKE    : ".yellow, colors.green(rewards.info.total_stake))
+                    console.log("AVERAGE REWARD : ".yellow, colors.green(rewards.info.average_reward))
+                    console.log("---------------------------------------------------".yellow)
+                    console.log("")
+                    console.log("NOW SENDING REWARDS, PLEASE WAIT".yellow)
+                    sendRewards(rewards.details, function (result) {
+                        if (!result) {
+                            console.log ("SOMETHING BAD HAPPENED".yellow)
+                        }
+                        console.log("TIMER WILL AGAIN START IN 10 MINUTES".yellow)
+                        console.log("")
+                        setTimeout(function () {
+                            initTimer()
+                        }, 10 * 60 * 1000)
+                    })
+                })
+            }
+            else {
+                console.log("ERR".bgRed, "NO ONE IS STAKING".yellow, colors.green(config.token.symbol), "TOKEN, DISTRIBUTION FOR THIS DAY SKIPPED".yellow)
+                console.log("TIMER WILL BEGIN IN 10 MINUTES".yellow)
+                console.log("")
+                setTimeout(function () {
+                    initTimer()
+                }, 10 * 60 * 1000)
+            }
         })
-    }
-})
+    }, 2000)
+}
+
+console.log('\033[2J')
+console.log("#---------------------------------#".green)
+console.log("#        PoS - Distribution       #".green)
+console.log("#---------------------------------#".green)
+console.log("")
+
+if (config.isset == false) {
+	console.log(" ERR ".bgRed, "Please Configure the bot first, edit config.json file".yellow)
+}
+else {
+    initTimer()
+}
