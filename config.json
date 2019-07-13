@@ -6,6 +6,7 @@
     "token" : {
         "symbol" : ""
     },
+    "distribution_hour" : 0,
     "reward_pool" : 0,
     "least_stake_enabled" : false,
     "least_stake" : 0,
