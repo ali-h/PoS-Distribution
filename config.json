@@ -9,7 +9,5 @@
     "reward_pool" : 0,
     "least_stake_enabled" : false,
     "least_stake" : 0,
-    "transactions_limit" : false,
-    "transactions_per_json" : 0,
     "isset" : false
 }
