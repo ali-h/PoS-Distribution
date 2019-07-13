@@ -1,0 +1,26 @@
+{
+  "name": "pos-distribution",
+  "version": "1.0.0",
+  "description": "A Bot using Proof of Stake (PoS) for distributing Steem-Engine Tokens equally among Stakers.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alihassanah/PoS-Distribution.git"
+  },
+  "keywords": [
+    "JS",
+    "steem",
+    "steem-engine",
+    "bot",
+    "distribution",
+    "stake"
+  ],
+  "author": "Ali H",
+  "bugs": {
+    "url": "https://github.com/alihassanah/PoS-Distribution/issues"
+  },
+  "homepage": "https://github.com/alihassanah/PoS-Distribution#readme"
+}
