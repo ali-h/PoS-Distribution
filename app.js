@@ -3,6 +3,7 @@ const colors = require('colors')
 const config = require('./config.json')
 const fs = require("fs")
 const axios = require('axios')
+const memo_temp = fs.readFileSync("./assets/memo.md", "utf-8")
 
 function getAllStakers (callback) {
     var stakers = []
@@ -93,7 +94,42 @@ function initTimer () {
 }
 
 function sendRewards(stakers, callback) {
-    callback(true)
+    var memo = memo_temp.replace("%date%", new Date().toLocaleString(undefined, {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    }))
+    var jsonOBJ = {
+        "0" : []
+    }
+    var num = 0
+    for(var i = 0; i <= stakers.length - 1; i++) {
+        if (i%11 == 0 && i>1) {
+            num++
+            jsonOBJ[num] = []
+        }
+        var json = 	{
+            "contractName":"tokens",
+            "contractAction":"transfer",
+            "contractPayload":{
+                "symbol": config.token.symbol,
+                "to": stakers.username,
+                "quantity": stakers.reward,
+                "memo": memo
+            }
+        }
+        jsonOBJ[num].push(json)
+    }
+    console.log(jsonOBJ)
+    // steem.broadcast.customJson(config.keys.active, [config.username], [], "ssc-mainnet1", JSON.stringify(json), function(err, result) {
+    //     if (!err) {
+    //         callback(true)
+    //     }
+    //     else {
+    //         console.log("ERR".bgRed, "While Sending Rewards".yellow)
+    //         callback(false)
+    //     }
+    // })
 }
 
 function InitiateDistribution () {
@@ -120,11 +156,18 @@ function InitiateDistribution () {
                         if (!result) {
                             console.log ("SOMETHING BAD HAPPENED".yellow)
                         }
-                        console.log("TIMER WILL AGAIN START IN 10 MINUTES".yellow)
-                        console.log("")
-                        setTimeout(function () {
-                            initTimer()
-                        }, 10 * 60 * 1000)
+                        else {
+                            console.log("SUCCESS".green)
+                            console.log("LOG FOR THIS DISTRIBUTION CAN BE FOUND IN DISTRIBUTIONS FOLDER".green)
+                            console.log("")
+                        }
+                        setTimeout (function () {      
+                            console.log("TIMER WILL AGAIN START IN 10 MINUTES".yellow)
+                            console.log("")
+                            setTimeout(function () {
+                                initTimer()
+                            }, 10 * 60 * 1000)
+                        }, 1000)
                     })
                 })
             }
