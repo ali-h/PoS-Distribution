@@ -3,7 +3,7 @@ const colors = require('colors')
 const config = require('./config.json')
 const fs = require("fs")
 const axios = require('axios')
-const memo_temp = fs.readFileSync("./assets/memo.md", "utf-8")
+const memo_temp = fs.readFileSync("./assets/memo.txt", "utf-8")
 steem.api.setOptions({
     url: 'https://anyx.io'
 })
