@@ -133,7 +133,7 @@ function sendRewards(stakers, callback) {
     }
     transferLOG["payload"] = []
     function doCustomJSON(batch_no) {        
-        steem.broadcast.customJson(config.keys.active, [config.username], [], "ssc!-mainnet1", JSON.stringify(jsonARR[batch_no - 1]), function(err, result) {
+        steem.broadcast.customJson(config.keys.active, [config.username], [], "ssc-mainnet1", JSON.stringify(jsonARR[batch_no - 1]), function(err, result) {
             var log = {}
             if (!err) {
                 console.log("TRANSACTIONS COMPLETED FOR BATCH NO [".green, batch_no, "]".green)                
@@ -156,10 +156,8 @@ function sendRewards(stakers, callback) {
                 name = name.getMonth() + "-" + name.getDate() + "-" + name.getFullYear()
                 fs.writeFile("./logs/"+ name +".json", JSON.stringify(transferLOG, null, "\t"), function(err) {
                     if (!err) {}
-                    else {
+                    else
                         console.log("ERR".bgRed, "While Creating Log File".yellow)
-                        console.log(err)
-                    }
                 })
                 callback(true)
             }
