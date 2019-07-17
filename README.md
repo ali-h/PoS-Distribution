@@ -15,7 +15,7 @@ Bot is easy to config, your will have to edit the `config.json` file according t
     "token" : {
         "symbol" : "" // symbol of the Token, The stakers of this tokens will be rewarded
     },
-    "distribution_hour" : 00, // distrubution happens daily, set it to 00 for 12:00 PM 
+    "distribution_hour" : 0, // distrubution happens daily, set it to 0 for 12:00 PM 
     "reward_pool" : 0, // the total Reward pool, it will be completely distributed 
     "isset" : false // set it true after configuring the bot
 }
