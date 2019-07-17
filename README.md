@@ -22,9 +22,12 @@ Bot is easy to config, your will have to edit the `config.json` file according t
 ```
 ## Memo
 `memo.md` File in th assets folder can be used to Send a memo to everyone in the distribution, there is a template already for it which is okay to user.
-## Parameters
+### Parameters
 You can a date parameter in the memo which will be replaced by it's current value:
 * `%date%` = > this will be replace by the current distribution date in the Memo.
+
+## Logs
+A Log file will be created in the `Logs` folder after every Distribution. it will contain all the information and actions happened in the distribution, a seprate log file will be genrated for every distribution named to the current date. the file will be in `JSON` format.
 
 ***
 
