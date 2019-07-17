@@ -1,0 +1,1 @@
+Daily Reward Distribution to Staker for %date%, Thanks for Staking!
