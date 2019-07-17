@@ -87,7 +87,7 @@ function initTimer () {
             })
             process.stdout.write("\rCURRENT LOCAL TIME : ".yellow + currentTime.green)
             var currentHour = new Date().getHours()
-            if (currentHour == config.distribution_hour) {
+            if (currentHour == config.distribution_hour && new Date().getMinutes() < 10) {
                 clearInterval(TimeTimer)
                 console.log("\n")
                 InitiateDistribution()
