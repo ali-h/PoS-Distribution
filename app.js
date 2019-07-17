@@ -7,6 +7,7 @@ const memo_temp = fs.readFileSync("./assets/memo.md", "utf-8")
 steem.api.setOptions({
     url: 'https://anyx.io'
 })
+var transferLOG = {}
 function getAllStakers (callback) {
     var stakers = []
     var requestURL = "https://api.steem-engine.com/rpc/contracts"
@@ -62,7 +63,7 @@ function getRewards (stakers, callback) {
         }
         rewards.details.push(rewardOBJ)
     }
-    var average = totalStake / stakers.length
+    var average = config.reward_pool / stakers.length
     rewards["info"] = {
         "stakers" : stakers.length,
         "total_stake" : totalStake.toFixed(8),
@@ -96,16 +97,21 @@ function initTimer () {
 }
 
 function sendRewards(stakers, callback) {
-    var memo = memo_temp.replace("%date%", new Date().toLocaleString(undefined, {
+    var date = new Date().toLocaleString(undefined, {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric',
-    }))
+    })
+    var memo = memo_temp.replace("%date%", date)
     var JSONsPerBlock = 25
     var total_batches = Math.ceil(stakers.length / JSONsPerBlock)
+    console.log("DISTRIBUTION IS SEPRATED IN [".green, total_batches, "] BATCHE(S)".green)
+    console.log("")
     var jsonARR = []
+    var objectARR = []
     for (var i = 0; i <= total_batches - 1; i++) {
         jsonARR[i] = []
+        objectARR[i] = []
     }
     var batch = 0
     for (var x = 0; x <= stakers.length - 1; x++) {
@@ -123,20 +129,43 @@ function sendRewards(stakers, callback) {
             }
         }
         jsonARR[batch].push(json)
+        objectARR[batch].push(stakers[x])
     }
-    var transferLOG = []
-    for (var batch_no = 0; batch_no <= jsonARR.length - 1; batch_no++) {
-        steem.broadcast.customJson(config.keys.active, [config.username], [], "ssc-mainnet1", JSON.stringify(jsonARR[batch_no]), function(err, result) {
+    transferLOG["payload"] = []
+    function doCustomJSON(batch_no) {        
+        steem.broadcast.customJson(config.keys.active, [config.username], [], "ssc!-mainnet1", JSON.stringify(jsonARR[batch_no - 1]), function(err, result) {
+            var log = {}
             if (!err) {
-                console.log("Distribution Done for the Batch No [".yellow, batch_no.yellow, "]")
-                // callback(true)
+                console.log("TRANSACTIONS COMPLETED FOR BATCH NO [".green, batch_no, "]".green)                
+                log["log"] = "success"
             }
             else {
-                console.log("ERR".bgRed, "While Sending Rewards to #Batch No [".yellow, batch_no.yellow ,"]".yellow)
-                // callback(false)
+                console.log("ERR".bgRed, "While Sending Rewards to #Batch No [".yellow, batch_no ,"]".yellow)
+                log["log"] = "failed"
+            }
+            log["batch_id"] = batch_no
+            log["total_transactions"] = objectARR[batch_no - 1].length
+            log["payload"] = objectARR[batch_no - 1]
+            transferLOG.payload.push(log)         
+            
+            if (batch_no < jsonARR.length) {
+                doCustomJSON(++batch_no)
+            }
+            else {
+                var name = new Date()
+                name = name.getMonth() + "-" + name.getDate() + "-" + name.getFullYear()
+                fs.writeFile("./logs/"+ name +".json", JSON.stringify(transferLOG, null, "\t"), function(err) {
+                    if (!err) {}
+                    else {
+                        console.log("ERR".bgRed, "While Creating Log File".yellow)
+                        console.log(err)
+                    }
+                })
+                callback(true)
             }
         })
-    }    
+    }
+    doCustomJSON(1)
 }
 
 function InitiateDistribution () {
@@ -158,16 +187,15 @@ function InitiateDistribution () {
                 console.log("---------------------------------------------------".yellow)
                 console.log("")
                 console.log("NOW SENDING REWARDS, PLEASE WAIT".yellow)
+                transferLOG["total_stake"] = rewards.info.total_stake;
+                transferLOG["reward_pool"] = rewards.info.reward_pool;
+                transferLOG["total_stakers"] = rewards.info.stakers;
                 sendRewards(rewards.details, function (result) {
-                    if (!result) {
-                        console.log ("SOMETHING BAD HAPPENED".yellow)
-                    }
-                    else {
-                        console.log("SUCCESS".green)
-                        console.log("LOG FOR THIS DISTRIBUTION CAN BE FOUND IN DISTRIBUTIONS FOLDER".green)
-                        console.log("")
-                    }
-                    setTimeout (function () {      
+                    console.log("")
+                    console.log("SUCCESS - ALL TRANSACTIONS COMPLETED".green)
+                    console.log("LOG FOR THIS DISTRIBUTION CAN BE FOUND IN LOGS FOLDER".green)
+                    console.log("")
+                    setTimeout (function () {
                         console.log("TIMER WILL AGAIN START IN 10 MINUTES".yellow)
                         console.log("")
                         setTimeout(function () {
