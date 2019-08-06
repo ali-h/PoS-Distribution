@@ -113,6 +113,7 @@ function sendRewards(stakers, callback) {
         jsonARR[i] = []
         objectARR[i] = []
     }
+    var blacklist = fs.readFileSync("./blacklist.txt", "utf-8")
     var batch = 0
     for (var x = 0; x <= stakers.length - 1; x++) {
         if (x % JSONsPerBlock == 0 && x > 1) {
@@ -128,8 +129,10 @@ function sendRewards(stakers, callback) {
                 "memo": memo
             }
         }
-        jsonARR[batch].push(json)
-        objectARR[batch].push(stakers[x])
+        if (blacklist.includes(stakers[x].username)) {} else {
+            jsonARR[batch].push(json)
+            objectARR[batch].push(stakers[x])
+        }
     }
     transferLOG["payload"] = []
     function doCustomJSON(batch_no) {        
